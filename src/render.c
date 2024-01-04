@@ -1,11 +1,4 @@
 #include "render.h"
-#include "calcul.h"
-#include "debug.h"
-#include "draw.h"
-#include "struct.h"
-#include "tigr.h"
-#include <math.h>
-#define TO_RADIANS 0.0174532925
 
 // triangle = 3 vertice + one normal vertice
 void _append_triangle(Vertice** array, Vertice v[3], Vertice* normal, int* len, int* capacity)

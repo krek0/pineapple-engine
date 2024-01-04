@@ -1,5 +1,4 @@
 #include "input.h"
-#include "struct.h"
 
 void update_keys(Tigr* screen, Camera* camera)
 {

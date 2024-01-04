@@ -1,5 +1,4 @@
 #include "obj.h"
-#include "calcul.h"
 
 void free_obj(Obj* obj)
 {

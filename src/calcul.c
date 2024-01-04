@@ -1,5 +1,4 @@
 #include "calcul.h"
-#include <math.h>
 
 void matrix_transformation (Vertice* in_point, Vertice* out_point, float matrix[4][4])
 {
