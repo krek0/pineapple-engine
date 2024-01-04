@@ -1,6 +1,6 @@
 #include "render.h"
 
-// triangle = 3 vertice + one normal vertice
+// Array is a array of a triangle = 3 vertice + one normal vertice
 void _append_triangle(Vertice** array, Vertice v[3], Vertice* normal, int* len, int* capacity)
 {
   if (*len == *capacity) // Need to realoc space
