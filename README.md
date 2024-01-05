@@ -10,6 +10,6 @@ A CPU-based 3D engine developed for fun. The engine utilizes the [tigr](https://
 - [ ] Develop a minimal UI
 - [ ] Enhance control mechanisms
 - [ ] Add texture support
-- [ ] Totally support of the obj file format
+- [ ] Totally support the obj file format
 
 **Note:** This program is created for educational purposes and may not strictly adhere to safety practices.
