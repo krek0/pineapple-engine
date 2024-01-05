@@ -232,7 +232,7 @@ int clip_triangle(Vertice triangle[3], Vertice out_triangle1[3], Vertice out_tri
 
 void _draw_triangle(Tigr* screen, float* depth_buffer, Vertice triangle[3], Vertice* normal, TPixel color)
 {
-    Vertice light = {0,-0.7071,0.7071};
+    Vertice light = {0,-0.9,0.4358898944};
     float light_percentage = dot_product(&light, normal);
     light_percentage = -light_percentage;
     if (light_percentage < 0) light_percentage = 0;
@@ -349,10 +349,9 @@ void render_obj(Tigr* screen, float* depth_buffer, Obj* obj, Camera* camera)
         len = tmp_len;
         capacity = tmp_capacity;
     }
-    TPixel blue = {0, 255, 255, 255};
     for (int i = 0; i < len; i++) // finaly draw clipped triangles
     {
-        _draw_triangle(screen, depth_buffer, &triangle_array[i*4], &triangle_array[i*4+3], blue);
+        _draw_triangle(screen, depth_buffer, &triangle_array[i*4], &triangle_array[i*4+3], obj->color);
     }
     my_free(triangle_array);
 }

@@ -96,7 +96,7 @@ Obj load_obj_file(char* path)
     }
   }
   Obj obj;
-  obj.color = tigrRGB(10, 210, 240);
+  obj.color = tigrRGB(255, 255, 255);
   obj.n = faces_len;
   obj.faces = faces;
   my_free(vertices);
