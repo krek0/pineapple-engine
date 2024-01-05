@@ -3,20 +3,24 @@
 // Array is a array of a triangle = 3 vertice + one normal vertice
 void _append_triangle(Vertice** array, Vertice v[3], Vertice* normal, int* len, int* capacity)
 {
-  if (*len == *capacity) // Need to realoc space
-  {
-    *capacity = *capacity * 2;
-    Vertice* new_array = my_malloc(sizeof(Vertice) * *capacity * 4);
-    for (int i = 0; i < *len*4; i++)
-      new_array[i] = (*array)[i];
-    my_free(*array);
-    *array = new_array;
-  }
-  (*array)[*len*4+0] = v[0];
-  (*array)[*len*4+1] = v[1];
-  (*array)[*len*4+2] = v[2];
-  (*array)[*len*4+3] = *normal;
-  *len = *len + 1;
+    if (*len == *capacity) // Need to realoc space
+    {
+        *capacity = *capacity * 2;
+        *array = realloc(*array, sizeof(Vertice) * (*capacity) * 4);
+        /*
+        Vertice* new_array = my_malloc(sizeof(Vertice) * *capacity * 4);
+        for (int i = 0; i < *len*4; i++)
+            new_array[i] = (*array)[i];
+        my_free(*array);
+        *array = new_array;
+        */
+    }
+    int index = (*len) * 4;
+    (*array)[index] = v[0];
+    (*array)[index+1] = v[1];
+    (*array)[index+2] = v[2];
+    (*array)[index+3] = *normal;
+    *len = *len + 1;
 }
 
 void copy_vertice(Vertice* dst_vertice, Vertice* src_vertice)
@@ -27,12 +31,13 @@ void copy_vertice(Vertice* dst_vertice, Vertice* src_vertice)
 }
 
 // side
+// If clipp return the number of new triangle (0,1,2)
+// Return -1 if the triangle in on screen
 // left: l, right: r, top: t, bottom: b, back_screen (z < 0): s
 int clip_triangle(Vertice triangle[3], Vertice out_triangle1[3], Vertice out_triangle2[3], char side, int value)
 {
     float test_value;
     char out_n = 0;
-    char in_n = 0;
     char out_points[3];
     char in_points[3];
     float screen_z = 0.1;
@@ -41,9 +46,9 @@ int clip_triangle(Vertice triangle[3], Vertice out_triangle1[3], Vertice out_tri
     {
         switch (side)
         {
-            case 'l': test_value = triangle[i].x; break;
+            case 'l':
             case 'r': test_value = triangle[i].x; break;
-            case 't': test_value = triangle[i].y; break;
+            case 't':
             case 'b': test_value = triangle[i].y; break;
             case 's': test_value = triangle[i].z-screen_z; break;
         }
@@ -54,16 +59,13 @@ int clip_triangle(Vertice triangle[3], Vertice out_triangle1[3], Vertice out_tri
         }
         else
         {
-            in_points[in_n] = i;
-            in_n += 1;
+            in_points[i-out_n] = i;
         }
     }
+    // Different case dependant of number of points outside
     if (out_n == 0) // no point outisde keep the original triangle
     {
-        copy_vertice(&out_triangle1[0], &triangle[0]);
-        copy_vertice(&out_triangle1[1], &triangle[1]);
-        copy_vertice(&out_triangle1[2], &triangle[2]);
-        return 1;
+        return -1;
     }
     else if (out_n == 1) // 1 point outside need two new triangles
     {
@@ -243,7 +245,6 @@ void _draw_triangle(Tigr* screen, float* depth_buffer, Vertice triangle[3], Vert
                          triangle[1].x, triangle[1].y, triangle[1].z,
                          triangle[2].x, triangle[2].y, triangle[2].z,
                          color);
-
 }
 
 void render_obj(Tigr* screen, float* depth_buffer, Obj* obj, Camera* camera)
@@ -283,9 +284,9 @@ void render_obj(Tigr* screen, float* depth_buffer, Obj* obj, Camera* camera)
     // Camera + projection
     float final_mat[4][4];
     matrix_4x4_multiplication(projection_mat, camera_mat, final_mat);
-    Vertice* triangle_array = my_malloc(sizeof(Vertice)*4);
-    int capacity = 1;
+    int capacity = obj->n; // Start with a capacity of n to do less resize
     int len = 0;
+    Vertice* triangle_array = my_malloc(sizeof(Vertice)*4*capacity);
     
     Vertice* tmp_triangle_array;
     int tmp_capacity;
@@ -294,9 +295,9 @@ void render_obj(Tigr* screen, float* depth_buffer, Obj* obj, Camera* camera)
     // Loop each faces
     for (int i = 0; i < obj->n; i++)
     {
-        // Check angle between normal vector and camera to obj vector
         Vertice camera_to_obj;
         Vertice fake_position;
+        // Check angle between normal vector and camera to obj vector
         sub_vertice(&camera->orientation, &camera->position, &fake_position);
         sub_vertice(&obj->faces[i].v[2], &fake_position, &camera_to_obj);
         TPixel color = {255, 0, 255, 255};
@@ -314,7 +315,6 @@ void render_obj(Tigr* screen, float* depth_buffer, Obj* obj, Camera* camera)
                 transformed_points[j].y *= -1;
                 transformed_points[j].x += 1;
                 transformed_points[j].y += 1;
-
                 transformed_points[j].x *= 0.5 * screen->w;
                 transformed_points[j].y *= 0.5 * screen->h;
             }
@@ -326,18 +326,23 @@ void render_obj(Tigr* screen, float* depth_buffer, Obj* obj, Camera* camera)
     const int values[] = {0, screen->w, 0, screen->h, 0};
     Vertice out_triangle1[3];
     Vertice out_triangle2[3];
-    for (int k = 0; k < 5; k++)
+    for (int k = 0; k < 5; k++) // clip the five plans
     {
-        Vertice* tmp_triangle_array = my_malloc(sizeof(Vertice)*len*4); // Alloc tmp array
         tmp_len = 0;
-        tmp_capacity = len;
+        tmp_capacity = len; // start with len capacity to do less resize
+        Vertice* tmp_triangle_array = my_malloc(sizeof(Vertice)*4*tmp_capacity); // Alloc tmp array
         for (int j = 0; j < len; j++)
         {
             int n = clip_triangle(&triangle_array[j*4], out_triangle1, out_triangle2, sides[k], values[k]);
-            if (n >= 1)
-                _append_triangle(&tmp_triangle_array, out_triangle1, &triangle_array[j*4+3], &tmp_len, &tmp_capacity);
-            if (n == 2)
-                _append_triangle(&tmp_triangle_array, out_triangle2, &triangle_array[j*4+3], &tmp_len, &tmp_capacity);
+            if (n == -1) // no clipping
+                _append_triangle(&tmp_triangle_array, &triangle_array[j*4], &triangle_array[j*4+3], &tmp_len, &tmp_capacity);
+            else
+            {
+                if (n == 1 || n == 2)
+                    _append_triangle(&tmp_triangle_array, out_triangle1, &triangle_array[j*4+3], &tmp_len, &tmp_capacity);
+                if (n == 2)
+                    _append_triangle(&tmp_triangle_array, out_triangle2, &triangle_array[j*4+3], &tmp_len, &tmp_capacity);
+            }
         }
         my_free(triangle_array);
         triangle_array = tmp_triangle_array;
@@ -345,9 +350,9 @@ void render_obj(Tigr* screen, float* depth_buffer, Obj* obj, Camera* camera)
         capacity = tmp_capacity;
     }
     TPixel blue = {0, 255, 255, 255};
-    for (int j = 0; j < len; j++) // finaly draw clipped triangles
+    for (int i = 0; i < len; i++) // finaly draw clipped triangles
     {
-        _draw_triangle(screen, depth_buffer, &triangle_array[j*4], &triangle_array[j*4+3], blue);
+        _draw_triangle(screen, depth_buffer, &triangle_array[i*4], &triangle_array[i*4+3], blue);
     }
     my_free(triangle_array);
 }

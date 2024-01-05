@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
         for (int i = 0; i < screen->w*screen->h; i++)
             depth_buffer[i] = 1000;
         float time = tigrTime();
-        sprintf(fps, "%i/60", (int)(1./time));
+        sprintf(fps, "%f/60", (1./time));
         tigrPrint(screen, tfont, 0, 0, tigrRGB(255, 255, 255), fps);
         tigrUpdate(screen);
     }

@@ -101,7 +101,7 @@ Obj load_obj_file(char* path)
   obj.faces = faces;
   my_free(vertices);
 
-  // Calculs normals
+  // Calculs normals if there are not in the file
   if (normals_len == 0)
   {
     my_free(normals);
