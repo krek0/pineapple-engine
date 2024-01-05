@@ -9,6 +9,4 @@ A CPU-based 3D engine developed for fun. The engine utilizes the [tigr](https://
 - [ ] Enhance control mechanisms
 - [ ] Add texture support
 
-**Note:** This program is created for educational purposes and may not strictly adhere to safety practices. Use it responsibly and at your own risk.
-
-Note: This program is developed for educational purposes and may not adhere to strict safety practices.
+**Note:** This program is created for educational purposes and may not strictly adhere to safety practices.
