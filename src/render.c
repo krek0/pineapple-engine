@@ -7,13 +7,6 @@ void _append_triangle(Vertice** array, Vertice v[3], Vertice* normal, int* len, 
     {
         *capacity = *capacity * 2;
         *array = realloc(*array, sizeof(Vertice) * (*capacity) * 4);
-        /*
-        Vertice* new_array = my_malloc(sizeof(Vertice) * *capacity * 4);
-        for (int i = 0; i < *len*4; i++)
-            new_array[i] = (*array)[i];
-        my_free(*array);
-        *array = new_array;
-        */
     }
     int index = (*len) * 4;
     (*array)[index] = v[0];
@@ -21,13 +14,6 @@ void _append_triangle(Vertice** array, Vertice v[3], Vertice* normal, int* len, 
     (*array)[index+2] = v[2];
     (*array)[index+3] = *normal;
     *len = *len + 1;
-}
-
-void copy_vertice(Vertice* dst_vertice, Vertice* src_vertice)
-{
-    dst_vertice->x = src_vertice->x;
-    dst_vertice->y = src_vertice->y;
-    dst_vertice->z = src_vertice->z;
 }
 
 // side
@@ -144,13 +130,13 @@ int clip_triangle(Vertice triangle[3], Vertice out_triangle1[3], Vertice out_tri
                 new_points[1].z = value;
             break;
         }
-        copy_vertice(&out_triangle1[0], &new_points[0]);
-        copy_vertice(&out_triangle1[1], &triangle[in_points[0]]);
-        copy_vertice(&out_triangle1[2], &triangle[in_points[1]]);
+        out_triangle1[0] = new_points[0];
+        out_triangle1[1] = triangle[in_points[0]];
+        out_triangle1[2] = triangle[in_points[1]];
 
-        copy_vertice(&out_triangle2[0], &new_points[0]);
-        copy_vertice(&out_triangle2[1], &triangle[in_points[1]]);
-        copy_vertice(&out_triangle2[2], &new_points[1]);
+        out_triangle2[0] = new_points[0];
+        out_triangle2[1] = triangle[in_points[1]];
+        out_triangle2[2] = new_points[1];
         return 2; 
     }
     else if (out_n == 2) // 2 point outside need one new triangle0
@@ -220,18 +206,20 @@ int clip_triangle(Vertice triangle[3], Vertice out_triangle1[3], Vertice out_tri
                 new_points[1].z = screen_z;
             break;
         }
-        copy_vertice(&out_triangle1[0], &new_points[0]);
-        copy_vertice(&out_triangle1[1], &new_points[1]);
-        copy_vertice(&out_triangle1[2], &triangle[in_points[0]]);
+        out_triangle1[0] = new_points[0];
+        out_triangle1[1] = new_points[1];
+        out_triangle1[2] = triangle[in_points[0]];
+
         return 1; 
  
     }
-    else // 3 point outside no render
+    else // 3 point outside no triangle to render
         return 0;
 }
 
 void _draw_triangle(Tigr* screen, float* depth_buffer, Vertice triangle[3], Vertice* normal, TPixel color)
 {
+    // Calcul light
     Vertice light = {0,-0.9,0.4358898944};
     float light_percentage = dot_product(&light, normal);
     light_percentage = -light_percentage;
@@ -240,6 +228,7 @@ void _draw_triangle(Tigr* screen, float* depth_buffer, Vertice triangle[3], Vert
     color.r = color.r * light_percentage;
     color.g = color.g * light_percentage;
     color.b = color.b * light_percentage;
+
     draw_filled_triangle(screen, depth_buffer,
                          triangle[0].x, triangle[0].y, triangle[0].z,
                          triangle[1].x, triangle[1].y, triangle[1].z,
@@ -297,7 +286,7 @@ void render_obj(Tigr* screen, float* depth_buffer, Obj* obj, Camera* camera)
     {
         Vertice camera_to_obj;
         Vertice fake_position;
-        // Check angle between normal vector and camera to obj vector
+        // Check if the face can be visible with the normal
         sub_vertice(&camera->orientation, &camera->position, &fake_position);
         sub_vertice(&obj->faces[i].v[2], &fake_position, &camera_to_obj);
         TPixel color = {255, 0, 255, 255};

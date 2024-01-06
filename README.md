@@ -5,7 +5,7 @@ A CPU-based 3D engine developed for fun. The engine utilizes the [tigr](https://
 ![Screenshot](https://github.com/krek0/pineapple_engine/blob/main/docs/images/car.gif)
 
 ## To Do
-- [ ] Fix a small clipping bug
+- [ ] Fix a small issue on clipping of big triangles
 - [ ] Implement a light engine
 - [ ] Develop a minimal UI
 - [ ] Enhance control mechanisms
