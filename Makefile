@@ -1,5 +1,3 @@
-# Makefile for your project
-
 # Compiler
 CC = gcc
 
@@ -24,7 +22,7 @@ all: $(TARGET)
 
 # Build the executable
 $(TARGET): $(OBJS)
-	$(CC) $(OBJS) -o $(TARGET) $(CFLAGS)
+	$(CC) $(OBJS) -o $(BUILD_DIR)/$(TARGET) $(CFLAGS)
 
 # Compile source files
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
