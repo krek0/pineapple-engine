@@ -252,7 +252,7 @@ void render_obj(Tigr* screen, float* depth_buffer, Obj* obj, Camera* camera)
     projection_mat[2][3] = (zFar * zNear) / (zNear - zFar);
     projection_mat[3][2] = 1.0;
 
-    // Camera matrix
+	// Convert world position to camera position
     float camera_mat[4][4] = {0};
     camera_mat[3][3] = 1;
     camera_mat[0][0] = camera->normal.x;
